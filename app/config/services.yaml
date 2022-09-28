@@ -22,3 +22,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    serializer.encode.json.unescaped:
+        class: Symfony\Component\Serializer\Encoder\JsonEncode
+        arguments:
+            - { "json_encode_options": !php/const JSON_UNESCAPED_UNICODE }
+
+    serializer.encoder.json:
+        class: Symfony\Component\Serializer\Encoder\JsonEncoder
+        arguments:
+            - '@serializer.encode.json.unescaped'

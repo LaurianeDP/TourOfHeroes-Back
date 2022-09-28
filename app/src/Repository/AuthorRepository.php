@@ -24,7 +24,7 @@ class AuthorRepository extends ServiceEntityRepository
     public function getAuthorsForView(): array {
         $qb = $this->createQueryBuilder('a')
             ->select('a, b')
-            ->join('a.books', 'b');
+            ->leftJoin('a.books', 'b');
 //            ->where('a.firstName = :hh')
 //            ->setParameter('hh', 'toto');
 

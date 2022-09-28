@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Helpers\ValidatorParser;
 use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
 use App\Entity\Book;
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class BookController extends AbstractController
 {
@@ -23,21 +25,32 @@ class BookController extends AbstractController
         protected EntityManagerInterface $entityManager,
         protected UrlGeneratorInterface  $urlGenerator,
         protected AuthorRepository       $authorRepository,
+        protected ValidatorInterface     $validator,
+        protected ValidatorParser        $validatorParser,
 //        protected Request                $request,
     )
     {
     }
 
-
-    #[Route('/api/books', name: 'book', methods: ['GET'])]
-    public function index(): Response
+    //SHOW ALL BOOKS IN JSON
+    #[Route('/api/books', name: 'book', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function getBookList(): JsonResponse
     {
-        return $this->render('book/index.html.twig', [
-            'books' => $this->bookRepository->findAll()
-        ]);
-//        dump($view);
+        $bookList = $this->bookRepository->findAll();
+        $jsonBookList = $this->serializer->serialize($bookList, 'json', ['groups' => 'getBooks']);
+
+        return new JsonResponse($jsonBookList, Response::HTTP_OK, [], true);
     }
 
+    //SHOW ONE BOOK IN JSON
+    #[Route('/api/books/{id}', name: 'detailBook', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function getDetailBook(Book $book, SerializerInterface $serializer): JsonResponse
+    {
+        $jsonBook = $serializer->serialize($book, 'json', ['groups' => 'getBooks']);
+        return new JsonResponse($jsonBook, Response::HTTP_OK, ['accept' => 'json'], true);
+    }
+
+    //DELETE
     #[Route('/api/books/{id}', name: 'deleteBook', methods: ['DELETE'])]
     public function deleteBook(Book $book): JsonResponse
     {
@@ -47,10 +60,21 @@ class BookController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
+    //CREATE
     #[Route('/api/books', name: 'createBook', methods: ['POST'])]
-    public function createBook(): JsonResponse
+    public function createBook(Request $request): JsonResponse
     {
         $book = $this->serializer->deserialize($request->getContent(), Book::class, 'json');
+
+        //Checks for errors when receiving the body of the request
+        $errors = $this->validator->validate($book);
+        $errors = $this->validatorParser->handleViolationList($errors);
+
+        if (!empty($errors)) {
+//            dump($errors->get(1));
+            return new JsonResponse($this->serializer->serialize($errors, 'json'),
+                JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
 
         //All of the request, in the form of an array
         $content = $request->toArray();
@@ -74,8 +98,9 @@ class BookController extends AbstractController
             true);
     }
 
+    //UPDATE
     #[Route('/api/books/{id}', name: 'updateBook', methods: ['PUT'])]
-    public function updateBook(Request $request, Book $currentBook):JsonResponse
+    public function updateBook(Request $request, Book $currentBook): JsonResponse
     {
         $updatedBook = $this->serializer->deserialize($request->getContent(),
             Book::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $currentBook]);
@@ -90,18 +115,13 @@ class BookController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    public function getBookList(): JsonResponse
+    //SHOW ALL BOOKS IN HTML
+    #[Route('/books', name: 'book', methods: ['GET'])]
+    public function index(): Response
     {
-        $bookList = $this->bookRepository->findAll();
-        $jsonBookList = $this->serializer->serialize($bookList, 'json', ['groups' => 'getBooks']);
-
-        return new JsonResponse($jsonBookList, Response::HTTP_OK, [], true);
-    }
-
-    #[Route('/api/books/{id}', name: 'detailBook', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function getDetailBook(Book $book, SerializerInterface $serializer): JsonResponse
-    {
-        $jsonBook = $serializer->serialize($book, 'json', ['groups' => 'getBooks']);
-        return new JsonResponse($jsonBook, Response::HTTP_OK, ['accept' => 'json'], true);
+        return $this->render('book/index.html.twig', [
+            'books' => $this->bookRepository->findAll()
+        ]);
+//        dump($view);
     }
 }

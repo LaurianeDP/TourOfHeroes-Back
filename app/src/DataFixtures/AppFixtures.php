@@ -4,13 +4,35 @@ namespace App\DataFixtures;
 
 use App\Entity\Book;
 use App\Entity\Author;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+    private $userPasswordHasher;
+
+    public function __construct(UserPasswordHasherInterface $userPasswordHasher) {
+        $this->userPasswordHasher = $userPasswordHasher;
+    }
+
     public function load(ObjectManager $manager): void
     {
+        //Generate fake data to populate the user table
+        $user = new User();
+        $user->setEmail("user@fakebookemail.com");
+        $user->setRoles(["ROLE_USER"]);
+        $user->setPassword($this->userPasswordHasher->hashPassword($user, "password"));
+        $manager->persist($user);
+
+        //Generate fake data to populate the user admin table
+        $userAdmin = new User();
+        $userAdmin->setEmail("admin@fakebookemail.com");
+        $userAdmin->setRoles(["ROLE_ADMIN"]);
+        $userAdmin->setPassword($this->userPasswordHasher->hashPassword($userAdmin, "password"));
+        $manager->persist($userAdmin);
+
         //Generate fake data to populate the author table
         $listAuthor = [];
         for ($i = 0; $i < 10; $i++) {

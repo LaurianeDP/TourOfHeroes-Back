@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AuthorRepository::class)]
 class Author
@@ -15,7 +16,7 @@ class Author
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(["getBooks",'getAuthors'])]
-    private ?int $id = null;
+    private ?int $id;
 
     #[ORM\Column(length: 255)]
     #[Groups(["getBooks",'getAuthors'])]
@@ -23,10 +24,11 @@ class Author
 
     #[ORM\Column(length: 255)]
     #[Groups(["getBooks",'getAuthors'])]
+    #[Assert\NotBlank(message:'Le nom de l\'auteur ne peut pas être vide!')]
     private ?string $lastName = null;
 
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Book::class)]
-    #[Groups(["getAuthors", 'getAuthors'])]
+    #[Groups(["getAuthors"])]
     private Collection $books;
 
     public function __construct()

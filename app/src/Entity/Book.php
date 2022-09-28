@@ -6,6 +6,7 @@ use App\Repository\BookRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 class Book
@@ -18,15 +19,17 @@ class Book
 
     #[ORM\Column(length: 255)]
     #[Groups(["getBooks", 'getAuthors'])]
+    #[Assert\NotBlank(message:'Le titre du livre ne peut pas être vide')]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(["getBooks", 'getAuthors'])]
     private ?string $coverText = null;
 
-    #[ORM\ManyToOne(inversedBy: 'books')]
+    #[ORM\ManyToOne(targetEntity: Author::class, inversedBy: 'books')]
+    #[ORM\JoinColumn(onDelete:"CASCADE")]
     #[Groups(["getBooks"])]
-    private ?Author $author = null;
+    private ?Author $author;
 
     public function getId(): ?int
     {

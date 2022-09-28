@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
-use App\Entity\Book;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Author;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -41,7 +40,8 @@ class AuthorController extends AbstractController
 
     //Delete
     #[Route('/api/authors/{id}', name: 'deleteAuthor', methods: ['DELETE'])]
-    public function deleteAuthor(Author $author):JsonResponse {
+    public function deleteAuthor(Author $author): JsonResponse
+    {
 
         $this->entityManager->remove($author);
         $this->entityManager->flush();
@@ -51,7 +51,8 @@ class AuthorController extends AbstractController
 
     //Create
     #[Route('/api/authors', name: 'createAuthor', methods: ['POST'])]
-    public function createAuthor(Request $request):JsonResponse {
+    public function createAuthor(Request $request): JsonResponse
+    {
         $author = $this->serializer->deserialize($request->getContent(),
             Author::class, 'json');
 
@@ -69,7 +70,8 @@ class AuthorController extends AbstractController
 
     //Modify
     #[Route('/api/authors/{id}', name: 'updateAuthor', methods: ['PUT'])]
-    public function updateAuthor(Author $currentAuthor, Request $request):JsonResponse {
+    public function updateAuthor(Author $currentAuthor, Request $request): JsonResponse
+    {
 
         $updatedAuthor = $this->serializer->deserialize($request->getContent(),
             Author::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>
@@ -81,7 +83,7 @@ class AuthorController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-
+    //SHOW ALL AUTHORS IN JSON
     #[Route('/api/authors', name: 'author', methods: ['GET'])]
     public function getAllAuthor(): JsonResponse
     {
@@ -91,6 +93,7 @@ class AuthorController extends AbstractController
         return new JsonResponse($jsonAuthorList, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
+    //SHOW ONE AUTHOR IN JSON
     #[Route('/api/authors/{id}', name: 'detailAuthor', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function getAuthor(Author $author): JsonResponse
     {

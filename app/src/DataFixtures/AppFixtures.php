@@ -5,13 +5,14 @@ namespace App\DataFixtures;
 use App\Entity\Book;
 use App\Entity\Author;
 use App\Entity\User;
+use App\Factory\BookFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
-    private $userPasswordHasher;
+    private UserPasswordHasherInterface $userPasswordHasher;
 
     public function __construct(UserPasswordHasherInterface $userPasswordHasher) {
         $this->userPasswordHasher = $userPasswordHasher;
@@ -19,6 +20,10 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        $data = BookFactory::createBook("Building Restful APIs with Symfony and PHP 8", "test CovertText");
+        $manager->persist($data);
+        $manager->flush();
+
         //Generate fake data to populate the user table
         $user = new User();
         $user->setEmail("user@fakebookemail.com");

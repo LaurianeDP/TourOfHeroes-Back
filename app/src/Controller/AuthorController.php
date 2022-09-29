@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use  Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class AuthorController extends AbstractController
 {
@@ -40,6 +41,7 @@ class AuthorController extends AbstractController
 
     //Delete
     #[Route('/api/authors/{id}', name: 'deleteAuthor', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour supprimer un auteur')]
     public function deleteAuthor(Author $author): JsonResponse
     {
 
@@ -51,6 +53,7 @@ class AuthorController extends AbstractController
 
     //Create
     #[Route('/api/authors', name: 'createAuthor', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour créer un auteur')]
     public function createAuthor(Request $request): JsonResponse
     {
         $author = $this->serializer->deserialize($request->getContent(),
@@ -70,6 +73,7 @@ class AuthorController extends AbstractController
 
     //Modify
     #[Route('/api/authors/{id}', name: 'updateAuthor', methods: ['PUT'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour modifier un auteur')]
     public function updateAuthor(Author $currentAuthor, Request $request): JsonResponse
     {
 

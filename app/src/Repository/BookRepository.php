@@ -39,6 +39,10 @@ class BookRepository extends ServiceEntityRepository
         }
     }
 
+    public function findAllPagination($page, $limit) {
+        
+    }
+
 //    /**
 //     * @return Book[] Returns an array of Book objects
 //     */

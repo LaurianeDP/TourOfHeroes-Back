@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use  Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class BookController extends AbstractController
 {
@@ -34,9 +35,12 @@ class BookController extends AbstractController
 
     //SHOW ALL BOOKS IN JSON
     #[Route('/api/books', name: 'author', methods: ['GET'])]
-    public function getAllBooks(): JsonResponse
+    public function getAllBooks(Request $request): JsonResponse
     {
-        $bookList = $this->bookRepository->findAll();
+        $page = $request->get('page', 1);
+        $limit= $request->get('limit', 3);
+        $bookList = $this->bookRepository->findAllPagination($page, $limit);
+
         $jsonBookList = $this->serializer->serialize($bookList, 'json', ['groups' => 'getBooks']);
 
         return new JsonResponse($jsonBookList, Response::HTTP_OK, ['accept' => 'json'], true);
@@ -52,6 +56,7 @@ class BookController extends AbstractController
 
     //DELETE
     #[Route('/api/books/{id}', name: 'deleteBook', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour supprimer un livre')]
     public function deleteBook(Book $book): JsonResponse
     {
         $this->entityManager->remove($book);
@@ -62,6 +67,7 @@ class BookController extends AbstractController
 
     //CREATE
     #[Route('/api/books', name: 'createBook', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour créer un livre')]
     public function createBook(Request $request): JsonResponse
     {
         $book = $this->serializer->deserialize($request->getContent(), Book::class, 'json');
@@ -100,6 +106,7 @@ class BookController extends AbstractController
 
     //UPDATE
     #[Route('/api/books/{id}', name: 'updateBook', methods: ['PUT'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Vous n\'avez pas les droits suffisants pour modifier un livre')]
     public function updateBook(Request $request, Book $currentBook): JsonResponse
     {
         $updatedBook = $this->serializer->deserialize($request->getContent(),

@@ -33,13 +33,13 @@ class BookController extends AbstractController
     }
 
     //SHOW ALL BOOKS IN JSON
-    #[Route('/api/books', name: 'book', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function getBookList(): JsonResponse
+    #[Route('/api/books', name: 'author', methods: ['GET'])]
+    public function getAllBooks(): JsonResponse
     {
         $bookList = $this->bookRepository->findAll();
         $jsonBookList = $this->serializer->serialize($bookList, 'json', ['groups' => 'getBooks']);
 
-        return new JsonResponse($jsonBookList, Response::HTTP_OK, [], true);
+        return new JsonResponse($jsonBookList, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     //SHOW ONE BOOK IN JSON

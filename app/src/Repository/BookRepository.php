@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Book;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use mysql_xdevapi\Result;
 
 /**
  * @extends ServiceEntityRepository<Book>
@@ -39,8 +40,11 @@ class BookRepository extends ServiceEntityRepository
         }
     }
 
-    public function findAllPagination($page, $limit) {
-        
+    public function findAllPagination($page, $limit):array {
+        $qb = $this->createQueryBuilder('b')
+            ->setFirstResult(($page- 1) * $limit)
+            ->setMaxResults($limit);
+        return $qb->getQuery()->getResult();
     }
 
 //    /**

@@ -33,8 +33,9 @@ class BookController extends AbstractController
     {
     }
 
-    //SHOW ALL BOOKS IN JSON
+    //SHOW ALL BOOKS IN JSON WITH PAGINATION
     #[Route('/api/books', name: 'author', methods: ['GET'])]
+    //Gets paramterers from url, ex: "/api/books?page=3&limit=2" will show page 3 of pagination and display only two results
     public function getAllBooks(Request $request): JsonResponse
     {
         $page = $request->get('page', 1);

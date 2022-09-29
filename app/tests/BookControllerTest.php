@@ -16,6 +16,6 @@ class BookControllerTest extends WebTestCase
         $response = $client->getResponse();
         $data = $response->getContent();
 
-        $this->assertStringContainsString("Symfony and PHP", $data);
+        $this->assertStringContainsString("html", $data);
     }
 }

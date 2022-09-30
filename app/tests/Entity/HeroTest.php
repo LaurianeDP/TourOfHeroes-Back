@@ -32,14 +32,10 @@ class HeroTest extends KernelTestCase
         //Checks error returned, expects two, hero name cannot be null, and must be over two characters long
         $this->assertHasErrors($hero, 2);
 
-        //Resets valid values for hero
-        $hero = $this->getEntity();
         $hero->setName('Checking if exceeding characters on hero name is working correctly');
         //Checks error returned, expects one, hero name cannot be over 50 characters long
         $this->assertHasErrors($hero, 1);
 
-        //Resets valid values for hero
-        $hero = $this->getEntity();
         $hero->setName('a');
         //Checks error returned, expects one, hero name cannot be under 2 characters long
         $this->assertHasErrors($hero, 1);
@@ -58,8 +54,6 @@ class HeroTest extends KernelTestCase
         //Checks error returned, expects one, hero alter ego cannot be under two characters long
         $this->assertHasErrors($hero, 1);
 
-        //Resets valid values for hero
-        $hero = $this->getEntity();
         $hero->setAlterEgo('Checking if exceeding characters on hero name is working correctly, total number of allowed characters being one hundred');
         //Checks error returned, expects one, hero alter ego cannot be under over a hundred characters long
         $this->assertHasErrors($hero, 1);

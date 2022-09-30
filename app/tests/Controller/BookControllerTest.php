@@ -5,6 +5,8 @@ namespace App\Tests;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class BookControllerTest extends WebTestCase
 {
@@ -35,18 +37,18 @@ class BookControllerTest extends WebTestCase
         $client->request('GET', '/api/books');
 
         //Vérifie que la requête Http renvoi quelque chose
-        $this->assertResponseIsSuccessful();
+        self::assertResponseIsSuccessful();
 
         //Récupère la réponse et vérifie son format
-        $this->assertJson($client->getResponse()->getContent());
+        self::assertJson($client->getResponse()->getContent());
     }
 
     //Vérifie que la requête sur l'url API sans authentification ne fonctionne pas
     public function testRouteIsRestricted() {
-        $client = $this->callClient('GET','/api/books');
+        $client = self::callClient('GET','/api/books');
 
         //Vérifie que la requête Http renvoi une erreur d'authorisation liée au token JWT
-        $this->assertResponseStatusCodeSame(401);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
     //Fonction utilitaire pour raccourcir le code des tests

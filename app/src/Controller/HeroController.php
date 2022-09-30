@@ -50,8 +50,6 @@ class HeroController extends AbstractController
         return new JsonResponse($jsonHero, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-    
-
     #[Route('/hero', name: 'app_hero')]
     public function index(): Response
     {

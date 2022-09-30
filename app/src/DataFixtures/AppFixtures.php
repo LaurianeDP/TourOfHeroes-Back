@@ -15,10 +15,14 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $this->faker = Factory::create('en_US');
+        $maxLength = function($string) {
+            return mb_strlen($string) <= 43;
+        };
 
         for ($i = 0; $i < 10; $i++) {
+            $fakeName = $this->faker->valid($maxLength)->country();
             $hero = (new Hero())
-                ->setName('Captain '.$this->faker->country())
+                ->setName('Captain '.$fakeName)
                 ->setPower('Super '.$this->faker->colorName())
                 ->setAlterEgo($this->faker->name());
 

@@ -20,7 +20,7 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $data = BookFactory::createBook("Building Restful APIs with Symfony and PHP 8", "test CovertText");
+        $data = BookFactory::createBook("Building Restful APIs", "test CovertText");
         $manager->persist($data);
         $manager->flush();
 

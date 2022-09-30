@@ -27,7 +27,6 @@ class BookController extends AbstractController
         protected UrlGeneratorInterface  $urlGenerator,
         protected AuthorRepository       $authorRepository,
         protected ValidatorInterface     $validator,
-        protected ValidatorParser        $validatorParser,
 //        protected Request                $request,
     )
     {
@@ -75,7 +74,7 @@ class BookController extends AbstractController
 
         //Checks for errors when receiving the body of the request
         $errors = $this->validator->validate($book);
-        $errors = $this->validatorParser->handleViolationList($errors);
+        $errors = ValidatorParser::handleViolationList($errors);
 
         if (!empty($errors)) {
 //            dump($errors->get(1));

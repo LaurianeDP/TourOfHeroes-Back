@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\HeroRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: HeroRepository::class)]
 class Hero
@@ -26,8 +27,9 @@ class Hero
     #[ORM\ManyToOne(targetEntity: Power::class, inversedBy: 'id')]
     #[ORM\JoinColumn]
     #[Assert\NotBlank(message:'Hero power cannot be empty!')]
-    #[Assert\Type(type: Power::class, message:'Hero power must be part of the pre-approved list of powers')]
-    private ?Power $power = null;
+//    #[Assert\Type(type: Power::class, message:'Hero power must be part of the pre-approved list of powers')]
+    private ?string $power = null;
+//    private ?Power $power = null;
 
     #[ORM\Column(length: 100, nullable: true)]
     #[Assert\Length(

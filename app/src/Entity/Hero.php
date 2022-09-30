@@ -24,8 +24,9 @@ class Hero
     )]
     private ?string $name = null;
 
-    #[ORM\ManyToOne(targetEntity: Power::class, inversedBy: 'id')]
-    #[ORM\JoinColumn]
+//    #[ORM\ManyToOne(targetEntity: Power::class, inversedBy: 'id')]
+//    #[ORM\JoinColumn]
+    #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message:'Hero power cannot be empty!')]
 //    #[Assert\Type(type: Power::class, message:'Hero power must be part of the pre-approved list of powers')]
     private ?string $power = null;

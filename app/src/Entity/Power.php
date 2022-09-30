@@ -11,7 +11,8 @@ class Power
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\OneToMany(mappedBy: 'power', targetEntity: Hero::class)]
+    #[ORM\Column]
+//    #[ORM\OneToMany(mappedBy: 'power', targetEntity: Hero::class)]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]

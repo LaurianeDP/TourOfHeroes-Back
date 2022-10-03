@@ -38,7 +38,7 @@ class HeroController extends AbstractController
         $limit= $request->get('limit', 3);
         $heroesList = $this->heroRepository->findAllPagination($page, $limit);
 
-        $jsonHeroesList = $this->serializer->serialize($heroesList, 'json');
+        $jsonHeroesList = $this->serializer->serialize($heroesList, 'json', context: ['groups' => ['get']]);
 
         return new JsonResponse($jsonHeroesList, Response::HTTP_OK, ['accept' => 'json'], true);
     }
@@ -47,7 +47,7 @@ class HeroController extends AbstractController
     #[Route('/api/heroes/{id}', name: 'heroDetail', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function getHeroDetail(Hero $hero, SerializerInterface $serializer): JsonResponse
     {
-        $jsonHero = $serializer->serialize($hero, 'json');
+        $jsonHero = $serializer->serialize($hero, 'json', context: ['groups' => ['get']]);
         return new JsonResponse($jsonHero, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
@@ -82,7 +82,7 @@ class HeroController extends AbstractController
         $this->entityManager->persist($hero);
         $this->entityManager->flush();
 
-        $jsonHero = $this->serializer->serialize($hero, 'json');
+        $jsonHero = $this->serializer->serialize($hero, 'json', context: ['groups' => ['get']]);
 
         $location = $this->urlGenerator->generate('heroDetail', ['id' => $hero->getId
         ()], UrlGeneratorInterface::ABSOLUTE_URL);
@@ -107,22 +107,22 @@ class HeroController extends AbstractController
     #[Route('/api/heroes/{id}', name: 'updateHero', methods: ['PUT'])]
 //    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to
 // update a hero')]
-    public function updateBook(Request $request, Hero $currentHero): JsonResponse
+    public function updateHero(Request $request, Hero $currentHero): JsonResponse
     {
         $updatedHero = $this->serializer->deserialize($request->getContent(),
             Hero::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>
                 $currentHero]);
 
         $content = $request->toArray();
-        if(in_array('idPower', $content)) {
-            $idPower = $content['idPower'] ?? -1;
+        if(array_key_exists('power', $content)) {
+            $idPower = $content['power']['id'] ?? -1;
             $updatedHero->setPower($this->powerRepository->find($idPower));
         }
-
         $this->entityManager->persist($updatedHero);
         $this->entityManager->flush();
 
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        $jsonHero = $this->serializer->serialize($updatedHero, 'json', context: ['groups' => ['get']]);
+        return new JsonResponse($jsonHero, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     //HTML display route

@@ -30,7 +30,7 @@ class PowerController extends AbstractController
     {
         $powersList = $this->powerRepository->findAll();
 
-        $jsonPowersList = $this->serializer->serialize($powersList, 'json');
+        $jsonPowersList = $this->serializer->serialize($powersList, 'json', context: ['groups' => ['get']]);
 
         return new JsonResponse($jsonPowersList, Response::HTTP_OK, ['accept' => 'json'], true);
     }

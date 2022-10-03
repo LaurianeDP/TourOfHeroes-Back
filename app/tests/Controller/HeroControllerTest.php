@@ -127,11 +127,12 @@ class HeroControllerTest extends WebTestCase
         $heroId = $randomHero->getId();
 
         $json = json_encode([
-            'name' => 'NewName'
+            'name' => 'NewName',
+            'power' => 8
         ]);
         $client->request('PUT', '/api/heroes/'.$heroId, content: $json
         );
-        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
         $updatedHero= $heroRepository->find($heroId);
         //Checks that the updated hero name is the right one

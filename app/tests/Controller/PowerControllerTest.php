@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class HeroControllerTest extends WebTestCase
+class PowerControllerTest extends WebTestCase
 {
     //Check api route sends back Json data
     public function testGetAllHeroesIsJson(): void
@@ -19,16 +19,10 @@ class HeroControllerTest extends WebTestCase
         self::assertJson($client->getResponse()->getContent());
     }
 
-    //Check api route sends back Json data
-    public function testGetOneHeroIsJson(): void
+    //Checks that api route sends back Json data
+    public function testGetAllPowersIsJson(): void
     {
-        $client = static::createClient();
-        $heroRepository = static::getContainer()->get(HeroRepository::class);
-        //Test retrieves a random id number from database
-        $allHeroes = $heroRepository->findAll();
-        $randomHero = $allHeroes[array_rand($allHeroes)];
-        $heroId = $randomHero->getId();
-        $client->request('GET', '/api/heroes/'.$heroId);
+        $client = $this->callClient('GET', '/api/powers');
 
         //Checking that http request does send back data
         self::assertResponseIsSuccessful();

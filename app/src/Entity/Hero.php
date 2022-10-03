@@ -24,13 +24,11 @@ class Hero
     )]
     private ?string $name = null;
 
-//    #[ORM\ManyToOne(targetEntity: Power::class, inversedBy: 'id')]
-//    #[ORM\JoinColumn]
-    #[ORM\Column(length: 50)]
+    #[ORM\ManyToOne(targetEntity: Power::class, inversedBy: 'heroes')]
+    #[ORM\JoinColumn]
     #[Assert\NotBlank(message:'Hero power cannot be empty!')]
-//    #[Assert\Type(type: Power::class, message:'Hero power must be part of the pre-approved list of powers')]
-    private ?string $power = null;
-//    private ?Power $power = null;
+    #[Assert\Type(type: Power::class, message:'Hero power must be part of the pre-approved list of powers')]
+    private ?Power $power = null;
 
     #[ORM\Column(length: 100, nullable: true)]
     #[Assert\Length(
@@ -58,12 +56,12 @@ class Hero
         return $this;
     }
 
-    public function getPower(): ?string
+    public function getPower(): ?Power
     {
         return $this->power;
     }
 
-    public function setPower(string $power): self
+    public function setPower(Power $power): self
     {
         $this->power = $power;
 

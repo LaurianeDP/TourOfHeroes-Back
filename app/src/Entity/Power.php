@@ -4,20 +4,26 @@ namespace App\Entity;
 
 use App\Repository\PowerRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
+use phpDocumentor\Reflection\Types\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PowerRepository::class)]
 class Power
 {
+    public function __construct() {}
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-//    #[ORM\OneToMany(mappedBy: 'power', targetEntity: Hero::class)]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message:'Power name cannot be empty!')]
     private ?string $name = null;
+
+    #[ORM\OneToMany(mappedBy: 'power', targetEntity: Hero::class)]
+    private ?PersistentCollection $heroes = null;
 
     public function getId(): ?int
     {

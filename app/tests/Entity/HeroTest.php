@@ -3,6 +3,7 @@
 namespace App\Tests\Entity;
 
 use App\Entity\Hero;
+use App\Entity\Power;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use App\Helpers\ValidatorParser;
 
@@ -42,8 +43,9 @@ class HeroTest extends KernelTestCase
     }
 
     public function testInvalidEntityPower() {
-        $hero = $this->getEntity();
-        $hero->setPower('');
+        $hero = (new Hero())
+            ->setName('Hero name')
+            ->setAlterEgo('Hero real name');
         //Checks error returned, expects one, hero power cannot be empty
         $this->assertHasErrors($hero, 1);
     }
@@ -61,10 +63,11 @@ class HeroTest extends KernelTestCase
 
     public function getEntity(): Hero
     {
+        $power = new Power();
+        $power->setName('Super test');
         return $hero = (new Hero())
             ->setName('Hero name')
-            //Type set as string TO BE CHANGED
-            ->setPower('Hero power')
+            ->setPower($power)
             ->setAlterEgo('Hero real name');
     }
 

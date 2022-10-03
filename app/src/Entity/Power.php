@@ -4,8 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PowerRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\PersistentCollection;
-use phpDocumentor\Reflection\Types\Collection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PowerRepository::class)]
@@ -23,7 +22,7 @@ class Power
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'power', targetEntity: Hero::class)]
-    private ?PersistentCollection $heroes = null;
+    private ?Collection $heroes = null;
 
     public function getId(): ?int
     {

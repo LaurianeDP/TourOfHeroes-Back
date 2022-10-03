@@ -28,7 +28,7 @@ class Hero
     #[ORM\JoinColumn]
     #[Assert\NotBlank(message:'Hero power cannot be empty!')]
     #[Assert\Type(type: Power::class, message:'Hero power must be part of the pre-approved list of powers')]
-    private ?Power $power = null;
+    private ?Power $power;
 
     #[ORM\Column(length: 100, nullable: true)]
     #[Assert\Length(

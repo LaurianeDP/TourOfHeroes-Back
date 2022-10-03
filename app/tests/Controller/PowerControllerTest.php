@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Tests\Controller;
+
 use App\Entity\Hero;
 use App\Repository\HeroRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;

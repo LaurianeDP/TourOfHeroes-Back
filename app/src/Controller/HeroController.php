@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Hero;
+use App\Helpers\ValidatorParser;
 use App\Repository\HeroRepository;
 use App\Repository\PowerRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -50,6 +51,81 @@ class HeroController extends AbstractController
         return new JsonResponse($jsonHero, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
+    //Create a Hero, to be linked to the sing-up form in front-end interface
+    #[Route('/api/hero', name: 'createHero', methods: ['POST'])]
+    public function createHero(Request $request): JsonResponse
+    {
+        $hero = $this->serializer->deserialize($request->getContent(), Hero::class, 'json');
+
+//        dump($this->powerRepository->find(58)); //TEST
+
+        //All of the request, in the form of an array
+        $content = $request->toArray();
+
+        //If idPower is not in the request, sets its value at -1
+        $idPower = $content['idPower'] ?? -1;
+
+        //If the power is found, set it in the hero's property, if not found,
+        // automatically null
+        $hero->setPower($this->powerRepository->find($idPower));
+
+        //Checks for errors when receiving the body of the request
+        $errors = $this->validator->validate($hero);
+        $errors = ValidatorParser::handleViolationList($errors);
+
+        if (!empty($errors)) {
+//            dump($errors->get(1)); //TEST
+            return new JsonResponse($this->serializer->serialize($errors, 'json'),
+                JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
+
+        $this->entityManager->persist($hero);
+        $this->entityManager->flush();
+
+        $jsonHero = $this->serializer->serialize($hero, 'json');
+
+        $location = $this->urlGenerator->generate('heroDetail', ['id' => $hero->getId
+        ()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return new JsonResponse($jsonHero, Response::HTTP_CREATED, ['location' => $location],
+            true);
+    }
+
+    //Delete a Hero, to be restricted in the front-end interface
+    #[Route('/api/heroes/{id}', name: 'deleteHero', methods: ['DELETE'])]
+//    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to
+// delete a hero')]
+    public function deleteHero(Hero $hero): JsonResponse
+    {
+        $this->entityManager->remove($hero);
+        $this->entityManager->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    //Update a Hero, to be resticted in the front-end interface
+    #[Route('/api/heroes/{id}', name: 'updateHero', methods: ['PUT'])]
+//    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to
+// update a hero')]
+    public function updateBook(Request $request, Hero $currentHero): JsonResponse
+    {
+        $updatedHero = $this->serializer->deserialize($request->getContent(),
+            Hero::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>
+                $currentHero]);
+
+        $content = $request->toArray();
+        if(in_array('idPower', $content)) {
+            $idPower = $content['idPower'] ?? -1;
+            $updatedHero->setPower($this->powerRepository->find($idPower));
+        }
+
+        $this->entityManager->persist($updatedHero);
+        $this->entityManager->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    //HTML display route
     #[Route('/hero', name: 'app_hero')]
     public function index(): Response
     {

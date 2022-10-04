@@ -35,7 +35,7 @@ class HeroController extends AbstractController
     public function getAllHeroes(Request $request): JsonResponse
     {
         $page = $request->get('page', 1);
-        $limit= $request->get('limit', 3);
+        $limit= $request->get('limit', 10);
         $heroesList = $this->heroRepository->findAllPagination($page, $limit);
 
         $jsonHeroesList = $this->serializer->serialize($heroesList, 'json', context: ['groups' => ['get']]);

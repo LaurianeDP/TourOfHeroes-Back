@@ -72,8 +72,10 @@ class HeroController extends AbstractController
 //        dump($request->getContent()); //TEST
 
         $content = $request->toArray();
+//        dump($content);
         if(array_key_exists('power', $content)) {
-            $idPower = $content['power']['id'] ?? -1;
+            $idPower = $content['power']['id'];
+            dump($idPower);
             $hero->setPower($this->powerRepository->find($idPower));
         }
 
@@ -146,8 +148,6 @@ class HeroController extends AbstractController
         else {
             $searchResult = "No heroes found matching that name";
         }
-
-
         return new JsonResponse($searchResult, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 

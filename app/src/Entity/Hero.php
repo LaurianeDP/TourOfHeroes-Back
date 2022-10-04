@@ -35,7 +35,7 @@ class Hero
     private ?Power $power;
 
     #[ORM\Column(length: 100, nullable: true)]
-    #[Assert\MaxLength(
+    #[Assert\Length(
         min: 2,
         max: 100,
         minMessage: 'Hero Alter Ego must be over {{ limit }} characters long',

@@ -45,8 +45,6 @@ class AppFixtures extends Fixture
             'Super strong'
         ];
         foreach($powers as $power) {
-            dump($power);
-            dump($powers);
         $powerObject = (new Power())
             ->setName($power);
         $manager->persist($powerObject);

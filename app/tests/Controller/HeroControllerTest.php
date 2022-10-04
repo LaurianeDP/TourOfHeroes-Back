@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Entity\Hero;
+use App\Entity\Power;
 use App\Repository\HeroRepository;
 use App\Repository\PowerRepository;
 use Doctrine\ORM\EntityManager;
@@ -74,11 +75,15 @@ class HeroControllerTest extends WebTestCase
         $powerRepository = static::getContainer()->get(PowerRepository::class);
         $allPowers = $powerRepository->findAll();
         $randomPower = $allPowers[array_rand($allPowers)];
-        $idPower = $randomPower->getId();
+
+        $randomPower = [
+            'id' => $randomPower->getId(),
+            'name' => $randomPower->getName()
+            ];
 
         $json = json_encode([
             'name' => 'New super Hero test',
-            'idPower' => $idPower,
+            'power' => $randomPower,
             'alterEgo' => 'New hero\'s real name'
         ]);
         $client->request('POST', '/api/hero', content: $json
@@ -121,14 +126,22 @@ class HeroControllerTest extends WebTestCase
     public function testUpdateWhenValid() {
         $client = static::createClientBetter();
         //Count the number of items in the hero database
+        $powerRepository = static::getContainer()->get(PowerRepository::class);
         $heroRepository = static::getContainer()->get(HeroRepository::class);
         $allHeroes = $heroRepository->findAll();
         $randomHero = $allHeroes[array_rand($allHeroes)];
         $heroId = $randomHero->getId();
+        $allPowers = $powerRepository->findAll();
+        $randomPower = $allPowers[array_rand($allPowers)];
+
+        $randomPowerArr = [
+            'id' => $randomPower->getId(),
+            'name' => $randomPower->getName()
+        ];
 
         $json = json_encode([
             'name' => 'NewName',
-            'power' => 8
+            'power' => $randomPowerArr
         ]);
         $client->request('PUT', '/api/heroes/'.$heroId, content: $json
         );
@@ -137,6 +150,7 @@ class HeroControllerTest extends WebTestCase
         $updatedHero= $heroRepository->find($heroId);
         //Checks that the updated hero name is the right one
         self::assertEquals('NewName', $updatedHero->getName());
+        self::assertEquals($randomPower, $updatedHero->getPower());
     }
 
     //Toolkit function to shorten test code

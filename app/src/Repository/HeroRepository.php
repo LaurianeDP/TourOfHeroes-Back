@@ -64,9 +64,18 @@ class HeroRepository extends ServiceEntityRepository
 //        ;
 //    }
     public function findAllPagination($page, $limit):array {
-        $qb = $this->createQueryBuilder('b')
+        $qb = $this->createQueryBuilder('page')
             ->setFirstResult(($page- 1) * $limit)
             ->setMaxResults($limit);
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findWithSearchTerms($term) {
+        $qb = $this->createQueryBuilder('hero')
+            ->Where('hero.name LIKE :val')
+            ->setParameter('val', '%'.$term.'%')
+            ->orderBy('hero.name', 'DESC')
+            ->setMaxResults(10);
         return $qb->getQuery()->getResult();
     }
 

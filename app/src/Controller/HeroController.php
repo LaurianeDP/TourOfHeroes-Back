@@ -62,7 +62,7 @@ class HeroController extends AbstractController
         return new JsonResponse($jsonHero, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
-    //Create a Hero, to be linked to the sing-up form in front-end interface
+    //Create a Hero, linked to the sing-up form in front-end interface
     #[Route('/api/hero', name: 'createHero', methods: ['POST'])]
     public function createHero(Request $request): JsonResponse
     {
@@ -131,6 +131,24 @@ class HeroController extends AbstractController
 
         $jsonHero = $this->serializer->serialize($updatedHero, 'json', context: ['groups' => ['get']]);
         return new JsonResponse($jsonHero, Response::HTTP_OK, ['accept' => 'json'], true);
+    }
+
+    //Searches for a hero name corresponding to the params sent
+    #[Route('/api/heroes_search', name: 'searchHero', methods: ['GET'])]
+    public function searchHero(Request $request): JsonResponse {
+        $term = $request->get('name');
+        $foundHeroes = $this->heroRepository->findWithSearchTerms($term);
+
+        if (!empty($foundHeroes)) {
+            $jsonFoundHeroes = $this->serializer->serialize($foundHeroes, 'json', context: ['groups' => ['get']]);
+            $searchResult = $jsonFoundHeroes;
+        }
+        else {
+            $searchResult = "No heroes found matching that name";
+        }
+
+
+        return new JsonResponse($searchResult, Response::HTTP_OK, ['accept' => 'json'], true);
     }
 
     //HTML display route

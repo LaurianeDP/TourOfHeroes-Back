@@ -35,9 +35,20 @@ class HeroController extends AbstractController
     public function getAllHeroes(Request $request): JsonResponse
     {
         $page = $request->get('page', 1);
-        $limit= $request->get('limit', 10);
+        $limit= $request->get('limit', 15);
         $heroesList = $this->heroRepository->findAllPagination($page, $limit);
 
+        $jsonHeroesList = $this->serializer->serialize($heroesList, 'json', context: ['groups' => ['get']]);
+
+        return new JsonResponse($jsonHeroesList, Response::HTTP_OK, ['accept' => 'json'], true);
+    }
+
+    //Show all heroes in Json
+    #[Route('/api/heroesAll', name: 'heroesAll', methods: ['GET'])]
+    //Gets parameters from url, ex: "/api/books?page=3&limit=2" will show page 3 of pagination and display only two results
+    public function getFullHeroesList(Request $request): JsonResponse
+    {
+        $heroesList = $this->heroRepository->findAll();
         $jsonHeroesList = $this->serializer->serialize($heroesList, 'json', context: ['groups' => ['get']]);
 
         return new JsonResponse($jsonHeroesList, Response::HTTP_OK, ['accept' => 'json'], true);
@@ -58,16 +69,13 @@ class HeroController extends AbstractController
         $hero = $this->serializer->deserialize($request->getContent(), Hero::class, 'json');
 
 //        dump($this->powerRepository->find(58)); //TEST
+//        dump($request->getContent()); //TEST
 
-        //All of the request, in the form of an array
         $content = $request->toArray();
-
-        //If idPower is not in the request, sets its value at -1
-        $idPower = $content['idPower'] ?? -1;
-
-        //If the power is found, set it in the hero's property, if not found,
-        // automatically null
-        $hero->setPower($this->powerRepository->find($idPower));
+        if(array_key_exists('power', $content)) {
+            $idPower = $content['power']['id'] ?? -1;
+            $hero->setPower($this->powerRepository->find($idPower));
+        }
 
         //Checks for errors when receiving the body of the request
         $errors = $this->validator->validate($hero);

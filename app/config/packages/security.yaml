@@ -24,6 +24,9 @@ security:
             pattern: ^/api
             stateless: true
             jwt: ~
+#            TO DO: To be added after full token implementation
+            #            refresh_jwt:
+            #                check_path: /api/token/refresh
 
         #            #Security is handled by JWT
         #        #main:
@@ -40,7 +43,7 @@ security:
         # Note: Only the *first* access control that matches will be used
 
     access_control:
-     - { path: ^/api, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: PUBLIC_ACCESS }
 when@test:
     security:
         password_hashers:

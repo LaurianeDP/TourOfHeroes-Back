@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class HeroController extends AbstractController
 {
@@ -115,7 +116,7 @@ class HeroController extends AbstractController
 
     //Update a Hero, to be resticted in the front-end interface
     #[Route('/api/heroes/{id}', name: 'updateHero', methods: ['PUT'])]
-//    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to
+    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to
 // update a hero')]
     public function updateHero(Request $request, Hero $currentHero): JsonResponse
     {

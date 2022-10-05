@@ -39,30 +39,6 @@ class HeroRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return Hero[] Returns an array of Hero objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('h')
-//            ->andWhere('h.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('h.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Hero
-//    {
-//        return $this->createQueryBuilder('h')
-//            ->andWhere('h.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
     public function findAllPagination($page, $limit):array {
         $qb = $this->createQueryBuilder('page')
             ->setFirstResult(($page- 1) * $limit)
@@ -76,6 +52,7 @@ class HeroRepository extends ServiceEntityRepository
             ->setParameter('val', '%'.$term.'%')
             ->orderBy('hero.name', 'DESC')
             ->setMaxResults(10);
+//        dump($qb->getQuery());
         return $qb->getQuery()->getResult();
     }
 

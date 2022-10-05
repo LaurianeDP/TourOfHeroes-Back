@@ -9,10 +9,6 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
-###> lexik/jwt-authentication-bundle ###
-/config/jwt/*.pem
-###< lexik/jwt-authentication-bundle ###
-
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache

@@ -16,22 +16,22 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class HeroControllerTest extends WebTestCase
 {
-   protected function setUp(): void
-   {
-       parent::setUp();
-       /** @var EntityManager $manager */
-       $manager = static::getContainer()->get(EntityManagerInterface::class);
-       $manager->beginTransaction();
-   }
+    protected function setUp(): void
+    {
+        parent::setUp();
+        /** @var EntityManager $manager */
+        $manager = static::getContainer()->get(EntityManagerInterface::class);
+        $manager->beginTransaction();
+    }
 
-   protected function tearDown(): void
-   {
-       /** @var EntityManager $manager */
-       $manager = static::getContainer()->get(EntityManagerInterface::class);
-       $manager->rollback();
-       parent::tearDown();
+    protected function tearDown(): void
+    {
+        /** @var EntityManager $manager */
+        $manager = static::getContainer()->get(EntityManagerInterface::class);
+        $manager->rollback();
+        parent::tearDown();
 
-   }
+    }
 
 
     //Checks api route sends back Json data
@@ -54,7 +54,7 @@ class HeroControllerTest extends WebTestCase
         $allHeroes = $heroRepository->findAll();
         $randomHero = $allHeroes[array_rand($allHeroes)];
         $heroId = $randomHero->getId();
-        $client->request('GET', '/api/heroes/'.$heroId);
+        $client->request('GET', '/api/heroes/' . $heroId);
 
         //Checking that http request does send back data
         self::assertResponseIsSuccessful();
@@ -64,7 +64,8 @@ class HeroControllerTest extends WebTestCase
 
     //Checks that api route sends back a successful response and that a new object is
     // created in the database
-    public function testCreationWhenValid() {
+    public function testCreationWhenValid()
+    {
         $client = static::createClientBetter();
         //Count the number of items in the hero database
         $heroRepository = static::getContainer()->get(HeroRepository::class);
@@ -79,7 +80,7 @@ class HeroControllerTest extends WebTestCase
         $randomPower = [
             'id' => $randomPower->getId(),
             'name' => $randomPower->getName()
-            ];
+        ];
 
         $json = json_encode([
             'name' => 'New super Hero test',
@@ -98,7 +99,8 @@ class HeroControllerTest extends WebTestCase
 
     //Checks that the database entry with the associated id is deleted, and that the
     // http request sends back an adequate response
-    public function testDeleteHeroWithId() {
+    public function testDeleteHeroWithId()
+    {
         $client = static::createClientBetter();
         $heroRepository = static::getContainer()->get(HeroRepository::class);
         //Test retrieves a random id number from database
@@ -110,7 +112,7 @@ class HeroControllerTest extends WebTestCase
         $randomHero = $allHeroes[array_rand($allHeroes)];
         $heroId = $randomHero->getId();
         //Test deletes the hero from database
-        $client->request('DELETE', '/api/heroes/'.$heroId);
+        $client->request('DELETE', '/api/heroes/' . $heroId);
         //Checks that http sends back code saying an item was deleted and there is
         // now no content associated with that id
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
@@ -123,7 +125,8 @@ class HeroControllerTest extends WebTestCase
 
     //Checks that an item is updated and that the http request sends back an
     // adequate response
-    public function testUpdateWhenValid() {
+    public function testUpdateWhenValid()
+    {
         $client = static::createClientBetter();
         //Count the number of items in the hero database
         $powerRepository = static::getContainer()->get(PowerRepository::class);
@@ -143,25 +146,55 @@ class HeroControllerTest extends WebTestCase
             'name' => 'NewName',
             'power' => $randomPowerArr
         ]);
-        $client->request('PUT', '/api/heroes/'.$heroId, content: $json
+        $client->request('PUT', '/api/heroes/' . $heroId, content: $json
         );
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
-        $updatedHero= $heroRepository->find($heroId);
+        $updatedHero = $heroRepository->find($heroId);
         //Checks that the updated hero name is the right one
         self::assertEquals('NewName', $updatedHero->getName());
         self::assertEquals($randomPower, $updatedHero->getPower());
     }
 
+    //Checks that a search request sends back a list of hero(es) in json
+    public function testSearchSendsResultBack()
+    {
+        $client = static::createClientBetter();
+
+        $searchRequest = "?name=cap";
+        $client->request('GET', '/api/heroes_search' . $searchRequest);
+
+        //Checks that the http response is good
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        //Checks that the response's content is in json
+        self::assertJson($client->getResponse()->getContent());
+    }
+
+    public function testSearchSendsErrorMessageIfNoResult()
+    {
+        $client = static::createClientBetter();
+
+        $searchRequest = "?name=azeertyuipdnjnineenzd";
+        $client->request('GET', '/api/heroes_search' . $searchRequest);
+
+        //Checks that the http response is good
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        //Checks that the response's content is the specific error message set in the controller
+        self::assertStringContainsString('No heroes found matching that name', $client->getResponse()->getContent());
+    }
+
     //Toolkit function to shorten test code
-    private function callClient($method, $url):KernelBrowser {
+    private function callClient($method, $url): KernelBrowser
+    {
         $client = static::createClientBetter();
         $client->request($method, $url);
         return $client;
     }
 
-    protected static function createClientBetter(array $options = [], array $server = []): KernelBrowser {
-        if(static::$booted === false)
+
+    protected static function createClientBetter(array $options = [], array $server = []): KernelBrowser
+    {
+        if (static::$booted === false)
             static::bootKernel($options);
 
         $kernel = static::$kernel;

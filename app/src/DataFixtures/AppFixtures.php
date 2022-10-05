@@ -4,18 +4,31 @@ namespace App\DataFixtures;
 
 use App\Entity\Hero;
 use App\Entity\Power;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Faker\Generator;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
     protected Generator $faker;
+    private $userPasswordHasher;
+
+    public function __construct(userPasswordHasherInterface $userPasswordHasher) {
+        $this->userPasswordHasher = $userPasswordHasher;
+    }
 
     public function load(ObjectManager $manager): void
     {
-        $powers = [];
+        $admin = new User();
+        $admin->setUsername("HeroAdmin");
+        $admin->setRoles(["ROLE_ADMIN"]);
+        $admin->setPassword($this->userPasswordHasher->hashPassword($admin, "adminPassword"));
+
+        $manager->persist($admin);
+
         $this->faker = Factory::create('en_US');
         $maxLength = function($string) {
             return mb_strlen($string) <= 43;

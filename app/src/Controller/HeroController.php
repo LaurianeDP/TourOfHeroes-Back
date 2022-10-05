@@ -21,13 +21,14 @@ class HeroController extends AbstractController
 {
     public function __construct(
         protected HeroRepository         $heroRepository,
-        protected PowerRepository       $powerRepository,
+        protected PowerRepository        $powerRepository,
         protected SerializerInterface    $serializer,
         protected EntityManagerInterface $entityManager,
         protected UrlGeneratorInterface  $urlGenerator,
         protected ValidatorInterface     $validator,
     )
-    {}
+    {
+    }
 
     //Show all heroes in Json, with pagination
     #[Route('/api/heroes', name: 'heroes', methods: ['GET'])]
@@ -35,7 +36,7 @@ class HeroController extends AbstractController
     public function getAllHeroes(Request $request): JsonResponse
     {
         $page = $request->get('page', 1);
-        $limit= $request->get('limit', 15);
+        $limit = $request->get('limit', 15);
         $heroesList = $this->heroRepository->findAllPagination($page, $limit);
 
         $jsonHeroesList = $this->serializer->serialize($heroesList, 'json', context: ['groups' => ['get']]);
@@ -73,9 +74,9 @@ class HeroController extends AbstractController
 
         $content = $request->toArray();
 //        dump($content);
-        if(array_key_exists('power', $content)) {
+        if (array_key_exists('power', $content)) {
             $idPower = $content['power']['id'];
-            dump($idPower);
+//            dump($idPower);
             $hero->setPower($this->powerRepository->find($idPower));
         }
 
@@ -103,8 +104,7 @@ class HeroController extends AbstractController
 
     //Delete a Hero, to be restricted in the front-end interface
     #[Route('/api/heroes/{id}', name: 'deleteHero', methods: ['DELETE'])]
-//    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to
-// delete a hero')]
+    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to delete a hero')]
     public function deleteHero(Hero $hero): JsonResponse
     {
         $this->entityManager->remove($hero);
@@ -124,7 +124,7 @@ class HeroController extends AbstractController
                 $currentHero]);
 
         $content = $request->toArray();
-        if(array_key_exists('power', $content)) {
+        if (array_key_exists('power', $content)) {
             $idPower = $content['power']['id'] ?? -1;
             $updatedHero->setPower($this->powerRepository->find($idPower));
         }
@@ -137,16 +137,17 @@ class HeroController extends AbstractController
 
     //Searches for a hero name corresponding to the params sent
     #[Route('/api/heroes_search', name: 'searchHero', methods: ['GET'])]
-    public function searchHero(Request $request): JsonResponse {
+    public function searchHero(Request $request): JsonResponse
+    {
         $term = $request->get('name');
         $foundHeroes = $this->heroRepository->findWithSearchTerms($term);
 
         if (!empty($foundHeroes)) {
             $jsonFoundHeroes = $this->serializer->serialize($foundHeroes, 'json', context: ['groups' => ['get']]);
             $searchResult = $jsonFoundHeroes;
-        }
-        else {
+        } else {
             $searchResult = "No heroes found matching that name";
+//            $searchResult = json_encode([$searchResult]);
         }
         return new JsonResponse($searchResult, Response::HTTP_OK, ['accept' => 'json'], true);
     }

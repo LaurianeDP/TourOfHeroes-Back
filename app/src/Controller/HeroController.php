@@ -17,6 +17,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class HeroController extends AbstractController
 {
@@ -27,6 +29,8 @@ class HeroController extends AbstractController
         protected EntityManagerInterface $entityManager,
         protected UrlGeneratorInterface  $urlGenerator,
         protected ValidatorInterface     $validator,
+        protected TokenStorageInterface $tokenStorageInt,
+        protected JWTTokenManagerInterface $JWTTokenManager,
     )
     {
     }
@@ -103,39 +107,6 @@ class HeroController extends AbstractController
             true);
     }
 
-    //Delete a Hero, to be restricted in the front-end interface
-    #[Route('/api/heroes/{id}', name: 'deleteHero', methods: ['DELETE'])]
-    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to delete a hero')]
-    public function deleteHero(Hero $hero): JsonResponse
-    {
-        $this->entityManager->remove($hero);
-        $this->entityManager->flush();
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    //Update a Hero, to be resticted in the front-end interface
-    #[Route('/api/heroes/{id}', name: 'updateHero', methods: ['PUT'])]
-    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to
-// update a hero')]
-    public function updateHero(Request $request, Hero $currentHero): JsonResponse
-    {
-        $updatedHero = $this->serializer->deserialize($request->getContent(),
-            Hero::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>
-                $currentHero]);
-
-        $content = $request->toArray();
-        if (array_key_exists('power', $content)) {
-            $idPower = $content['power']['id'] ?? -1;
-            $updatedHero->setPower($this->powerRepository->find($idPower));
-        }
-        $this->entityManager->persist($updatedHero);
-        $this->entityManager->flush();
-
-        $jsonHero = $this->serializer->serialize($updatedHero, 'json', context: ['groups' => ['get']]);
-        return new JsonResponse($jsonHero, Response::HTTP_OK, ['accept' => 'json'], true);
-    }
-
     //Searches for a hero name corresponding to the params sent
     #[Route('/api/heroes_search', name: 'searchHero', methods: ['GET'])]
     public function searchHero(Request $request): JsonResponse
@@ -161,4 +132,43 @@ class HeroController extends AbstractController
             'controller_name' => 'HeroController',
         ]);
     }
+
+    //*** Routes restricted by JWT token ***//
+
+    //Delete a Hero, to be restricted in the front-end interface
+    #[Route('/api/heroes/{id}', name: 'deleteHero', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to delete a hero')]
+    public function deleteHero(Request $request, Hero $hero): JsonResponse
+    {
+
+        $this->entityManager->remove($hero);
+        $this->entityManager->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    //Update a Hero, to be resticted in the front-end interface
+    #[Route('/api/heroes/{id}', name: 'updateHero', methods: ['PUT'])]
+    #[IsGranted('ROLE_ADMIN', message: 'You do not have the necessary rights to
+// update a hero')]
+    public function updateHero(Request $request, Hero $currentHero): JsonResponse
+    {
+//        $decodedToken = $this->JWTTokenManager->decode($this->tokenStorageInt->getToken());//TEST
+        $updatedHero = $this->serializer->deserialize($request->getContent(),
+            Hero::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE =>
+                $currentHero]);
+
+        $content = $request->toArray();
+        if (array_key_exists('power', $content)) {
+            $idPower = $content['power']['id'] ?? -1;
+            $updatedHero->setPower($this->powerRepository->find($idPower));
+        }
+        $this->entityManager->persist($updatedHero);
+        $this->entityManager->flush();
+
+        $jsonHero = $this->serializer->serialize($updatedHero, 'json', context: ['groups' => ['get']]);
+        return new JsonResponse($jsonHero, Response::HTTP_OK, ['accept' => 'json'], true);
+    }
+
+
 }
